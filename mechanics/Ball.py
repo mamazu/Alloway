@@ -18,7 +18,7 @@ class MovementMode(TextPane):
 
     # Toggles the mode
     def toggle(self):
-        self.mode = (self.mode + 1) % len(self.mode)
+        self.mode = (self.mode + 1) % len(MovementMode.MODES)
         self.setText(self)
 
     def __int__(self):
@@ -35,7 +35,7 @@ class Ball(Drawable):
     # Constructor
     def __init__(self, size=None):
         if isinstance(size, int) or isinstance(size, float):
-            Drawable.__init__(self, pos=Vec2D(0, 0), size=Vec2D(size, size))    
+            Drawable.__init__(self, pos=Vec2D(0, 0), size=Vec2D(size, size))
         else:
             Drawable.__init__(self, pos=Vec2D(0, 0), size=Vec2D(Ball.DEFAULTSIZE, Ball.DEFAULTSIZE))
         self.movement = Vec2D(0, 0)
@@ -107,7 +107,7 @@ class Ball(Drawable):
             self.bounce(0)
             self.pos = Vec2D(self.pos.x, self.size + 1)
         # Right
-        elif self.pos.x + self.size > sSize[0]:
+        elif self.pos.x + self.size.x > sSize[0]:
             self.bounce(1)
             self.pos = Vec2D(sSize[0] - (self.size + 1), self.pos.y)
         # Down

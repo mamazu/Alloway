@@ -1,5 +1,5 @@
 class Vec2D:
-    def __init__(self, x=0, y=0):
+    def __init__(self, x=0, y=0, vec=None):
         """
         Constructor of the vector
         :param x: x value
@@ -9,6 +9,14 @@ class Vec2D:
         """
         self.x = x
         self.y = y
+        if vec is None:
+            return
+        if Vec2D.isVec(vec):
+            self.x = vec.x
+            self.y = vec.y
+        elif len(vec) == 2:
+            self.x = vec[0]
+            self.y = vec[1]
 
     def __add__(self, other):
         """
@@ -87,6 +95,21 @@ class Vec2D:
         :rtype: bool
         """
         return not (self == other)
+
+    def __lt__(self, other):
+        if Vec2D.isVec(other):
+            return self.x < other.x and self.y < other.y
+        if isinstance(other, int) or isinstance(other, float):
+            return self.x < other and self.y < other
+
+    def __gt__(self, other):
+        if Vec2D.isVec(other):
+            return self.x > other.x and self.y > other.y
+        if isinstance(other, int) or isinstance(other, float):
+            return self.x > other and self.y > other
+
+    def __len__(self):
+        return 2
 
     def getTuple(self):
         """

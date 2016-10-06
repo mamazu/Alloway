@@ -31,10 +31,11 @@ class Game(SceneManager):
         #Setting up the sound
         self.sound = Sound()
         self.sound.pos = self.size - self.sound.size - Vec2D(20, 5)
-        print("LOADING COMPLETE")  
+        print("LOADING COMPLETE")
         #Setting up the game loop and the first level
         self.running = True
         self.setup()
+        self.keymap()
 
     def setup(self):
         from mechanics.Effect import Effect
@@ -52,6 +53,17 @@ class Game(SceneManager):
         self.ball.pos = self.player.pos + self.player.size * Vec2D(.5,0) - self.ball.size * Vec2D(.5, 1)
         # Reset score
         self.points.reset()
+
+    def keymap(self):
+        self.keymap = {
+            pygame.K_ESCAPE:    self.stop,
+            pygame.K_p:         self.pauseScreen,
+            pygame.K_UP:        self.ball.moveRand,
+            pygame.K_SPACE:     self.ball.moveRand,
+            pygame.K_s:         self.sound.toggleSound,
+            pygame.K_m:         self.mode.toggle,
+            pygame.K_q:         self.gameOver,
+        }
 
     def start(self):
         # Gameloop
@@ -71,34 +83,27 @@ class Game(SceneManager):
 
             self.draw()
             self.clock.tick(self.level.time)
-        pygame.quit()
-        quit()
 
     def eventLoop(self, event):
         # todo: implement keymap
         if event.type == pygame.QUIT:
             self.running = False
         elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                self.running = False
-            elif event.key == pygame.K_p:
-                self.pauseScreen()
-            elif event.key == pygame.K_RIGHT:
+            if event.key == pygame.K_RIGHT:
                 self.player.movement = 1
             elif event.key == pygame.K_LEFT:
                 self.player.movement = -1
-            elif event.key in (pygame.K_UP, pygame.K_SPACE):
-                self.ball.moveRand()
-            elif event.key == pygame.K_s:
-                self.sound.toggleSound()
-            elif event.key == pygame.K_m:
-                self.ball.mode.toggle()
-            elif event.key == pygame.K_q:
-                self.gameOver()
+            try:
+                self.keymap[event.key]()
+            except KeyError:
+                pass
         elif event.type == pygame.KEYUP:
             self.player.movement = 0
         elif (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 1):
-            self.sound.soundClick(pygame.mouse.get_pos())
+            self.click(pygame.mouse.get_pos())
+
+    def click(self, mousepos):
+        self.sound.click(mousepos)
 
     def draw(self):
         self.screen.fill(SceneManager.BACKGROUND_COLOR)
@@ -119,3 +124,7 @@ class Game(SceneManager):
 
 g = Game('Alloway')
 g.start()
+
+
+pygame.quit()
+quit()

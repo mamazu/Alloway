@@ -1,7 +1,7 @@
-from tools.utils import TextPane
+from gui.Button import Button
 from pygame import mixer as mix
 
-class Sound(TextPane):
+class Sound(Button):
     DEFAULTSOUNDS = {
         "player": "res/Sounds/playerBall.wav",
         "wall": "res/Sounds/wallBall.wav",
@@ -11,7 +11,7 @@ class Sound(TextPane):
 
     # Constructor
     def __init__(self, on=False):
-        TextPane.__init__(self, "Sound", 14)
+        Button.__init__(self, "Sound", self.toggleSound)
         mix.init()
         self.sounds = {}
         self.load(Sound.DEFAULTSOUNDS)
@@ -22,7 +22,7 @@ class Sound(TextPane):
     def load(self, moreSounds={}):
         from os.path import isfile
         for key, fileName in moreSounds.items():
-            if not isfile(fileName): 
+            if not isfile(fileName):
                 print("Could not load file %s" % fileName)
                 continue
             self.sounds[key] = mix.Sound(fileName)
@@ -32,11 +32,6 @@ class Sound(TextPane):
         # toggles the color from red to black
         self.fc = (0, 0, 0) if self.fc == (255, 0, 0) else (255, 0, 0)
         self.setSize()
-
-    # Checks if the click is on the sound button
-    def soundClick(self, mousepos):
-        if self.getRect().collidepoint(mousepos):
-            self.toggleSound()
 
     # Plays the sound
     def play(self, what="player"):
