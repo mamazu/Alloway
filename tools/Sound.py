@@ -1,5 +1,6 @@
 from gui.Button import Button
 from pygame import mixer as mix
+import threading
 
 class Sound(Button):
     DEFAULTSOUNDS = {
@@ -14,6 +15,7 @@ class Sound(Button):
         Button.__init__(self, "Sound", self.toggleSound)
         mix.init()
         self.sounds = {}
+        self.isOn = bool(on)
         self.load(Sound.DEFAULTSOUNDS)
         self.fc = (255, 0, 0) if on else (0, 0, 0)
         #Printing debug
@@ -30,8 +32,9 @@ class Sound(Button):
     # Toggles the sound
     def toggleSound(self):
         # toggles the color from red to black
-        self.fc = (0, 0, 0) if self.fc == (255, 0, 0) else (255, 0, 0)
-        self.setSize()
+        self.isOn = not self.isOn
+        self.fc = (255, 0, 0) if self.isOn else (0, 0, 0)
+        self.update()
 
     # Plays the sound
     def play(self, what="player"):

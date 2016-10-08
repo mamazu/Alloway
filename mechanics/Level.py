@@ -16,11 +16,11 @@ class Block(Drawable):
     # Constructor
     def __init__(self, position, size=1):
         import random, pygame
+        from tools.utils import Vec2D
         self.imageOverLay = None
         #self.effekt = ClassOfEffect("none")
-        self.pos = position
-        self.size = size
-        self.expansions = (self.size * Block.BLOCKSIZE[0], Block.BLOCKSIZE[1])
+        self.pos = Vec2D(0, 0, position)
+        self.size = Vec2D(size * Block.BLOCKSIZE[0], Block.BLOCKSIZE[1])
         if len(TEXTUES) != 0:
             image = pygame.image.load(random.choice(TEXTUES))
             image = pygame.transform.scale(image, self.expansions)
@@ -31,17 +31,18 @@ class Block(Drawable):
     # Drawing the block
     def draw(self, screen):
         from pygame.draw import rect
-        dim = (self.pos[0], self.pos[1], self.expansions[0], self.expansions[1])
         if self.imageOverLay is not None:
-            screen.blit(self.imageOverLay, (self.pos[0], self.pos[1]))
+            screen.blit(self.imageOverLay, self.pos.getTuple())
         else:
-            rect(screen, (255, 0, 0), dim)
-        rect(screen, (0, 0, 0), dim, 2)
+            rect(screen, (255, 0, 0), self.getRect())
+        rect(screen, (0, 0, 0), self.getRect(), 2)
 
     # Collision with coordinates
     def collides(self, ball):
-        ballRect = ball.getRect()
-        return self.getRect().collide(ballRect)
+        if isinstance(ball, Drawable):
+            ballRect = ball.getRect()
+            return self.getRect().collide(ballRect)
+        return None
 
     # Returns the name of the effect
     def getEffect(self, what="type"):
@@ -61,9 +62,11 @@ class Block(Drawable):
 class Level(Drawable):
     # Constructor
     def __init__(self):
+        from tools.utils import TextPane
         self.levelid = 1
         self.time = 30
         self.blocks = []
+        self.text = TextPane("", 19)
         self.switchLevel(1)
         print("Level created")
 
@@ -71,15 +74,14 @@ class Level(Drawable):
     def switchLevel(self, newLevel):
         self.levelid = newLevel
         self.setPattern()
+        self.text.setText("Level: " + str(self.levelid))
         print("Level %s" % self.levelid)
 
     # Draws the level id on the screen
     def draw(self, screen):
-        from tools.utils import TextPane
-        from tools.VecMath import Vec2D
-        text = TextPane("Level: " + str(self.levelid), 18, (0, 0, 0))
-        text.pos = Vec2D(20, screen.get_rect().width - 5 - text.size.y)
-        text.draw(screen)
+        self.text.draw(screen)
+        for block in self.blocks:
+            block.draw(screen)
 
     # Sets the Block pattern for the level
     def setPattern(self):

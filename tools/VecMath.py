@@ -124,7 +124,14 @@ class Vec2D:
         Returns the integer version of the vector.
         :rtype: Vec2D
         """
+        if Vec2D.isVec(self.x) or Vec2D.isVec(self.y):
+            print(self)
+            return Vec2D(0, 0)
         return Vec2D(int(self.x), int(self.y))
+
+    def getLength(self):
+        import math
+        return math.sqrt(self.x**2 + self.y**2)
 
     def set(self, value):
         """
@@ -159,8 +166,14 @@ class Vec2D:
         Returns the string representation of the vector
         :rtype: str
         """
-        return "Vec2(%f|%f)" % (self.x, self.y)
+        return "Vec2(%s|%s)" % (self.x, self.y)
 
+    def __repr__(self):
+        """
+        Returns the string representation of the vector
+        :rtype: str
+        """
+        return str(self)
 
 class Pane:
     from pygame import Rect

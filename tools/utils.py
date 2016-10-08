@@ -43,7 +43,7 @@ class TextPane(Drawable):
         self.bg = None
         self.textRect = None
         self.align = (TextPane.ALIGN_LEFT, TextPane.VALIGN_CENTER)
-        self.setSize()
+        self.update()
 
     def setAlign(self, align=None, valign=None):
         align = align if align is not None else self.align[0]
@@ -52,7 +52,7 @@ class TextPane(Drawable):
 
     def setText(self, text):
         self.text = str(text)
-        self.setSize()
+        self.update()
 
     def setBGcolor(self, color=None):
         if color is None or len(color) == 3:
@@ -60,7 +60,7 @@ class TextPane(Drawable):
         else:
             self.bg = None
 
-    def setSize(self):
+    def update(self):
         from pygame.font import Font
         self.textRect = Font(None, self.fs).render(self.text, 1, self.fc)
         rect = self.textRect.get_rect()

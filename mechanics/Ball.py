@@ -31,6 +31,9 @@ class MovementMode(TextPane):
 # BallClass
 class Ball(Drawable):
     DEFAULTSIZE = 80
+    FAIL = 0
+    BOUNCE = 1
+    NONE = 2
 
     # Constructor
     def __init__(self, size=None):
@@ -46,82 +49,63 @@ class Ball(Drawable):
     def setPosition(self, position):
         self.pos if Vec2D.isVec(position) else Vec2D(0, 0)
 
-    # Get the relative position of an object
-    def relPos(self, OBJpos):
-        erg = ''
-        if self.pos.x > OBJpos.pos.x:
-            erg += 'R'
-        else:
-            erg += 'L'
-        if self.pos.y > OBJpos.pos.y:
-            erg += 'U'
-        else:
-            erg += 'O'
-        return erg
-
-    # Moves the ball acording to his movement
-    def move(self):
-        if self.movement != Vec2D(0, 0):
-            self.pos += self.movement * self.speed
-            self.collides()
-            Player.collidePlayer()
-            # Checking the Blocks
-        if round(self.movement.y) == 0 and self.movement.x != 0:
-            self.movement.y = -1
-        if self.pos.y < 0:
-            self.pos = Vec2D(self.pos.x, self.size)
-        if self.pos.x < 0:
-            self.pos = Vec2D(self.size, self.pos.x)
-
-    # Starting ball movement
-    def moveRand(self):
-        if self.movement == Vec2D(0, 0):
-            from random import randint
-            self.movement = Vec2D(randint(-1, 4), -4)
-            print("Starting Speed: %s" % self.movement)
-        else: print("Current Speed: %s" % self.movement)
-
-    # Changes the moving direction of the ball
-    def bounce(self, direction):
-        if self.mode == "Bouncing":
-            self.movement.y = -self.movement.y
-            return True
-        from random import randint
-        if direction in (0, 2):
-            # print("Bounce of the top or player")
-            if self.pos.x <= self.size:
-                Sound.playSound("wall")
-                return True
-            self.movement = Vec2D(self.movement.x - randint(0, 1), -self.movement.y)
-        elif direction in (1, 3):
-            self.movement.x = -self.movement.x - randint(0, 1)
-            return True
-            # print("Bounce of one side")
-        else:
-            print("Bouncing direction not defined")
-
-    # Checks if the ball collides with something
-    def collides(self):
-        # Top
-        if self.pos.y < self.size:
-            self.bounce(0)
-            self.pos = Vec2D(self.pos.x, self.size + 1)
-        # Right
-        elif self.pos.x + self.size.x > sSize[0]:
-            self.bounce(1)
-            self.pos = Vec2D(sSize[0] - (self.size + 1), self.pos.y)
-        # Down
-        elif self.pos.y >= sSize[1] - self.size:
-            print("Game Over")
-            gameOver()
-        # Left
-        elif self.pos.x < self.size:
-            self.bounce(3)
-            self.pos = Vec2D(self.size + 1, self.pos.y)
-
     # Setting the speed of the ball
     def setSpeed(self, newSpeed):
         self.speed = newSpeed
+
+    # Get the relative position of an object
+    def relPos(self, obj):
+        return self.pos - obj.pos
+
+    # Moves the ball acording to his movement
+    def move(self):
+        self.pos += self.movement * self.speed
+
+    # Starting ball movement
+    def moveRand(self):
+        if self.movement != Vec2D(0, 0):
+            return False
+        from random import randint
+        self.movement = Vec2D(randint(-1, 4), -4)
+        while self.movement.x == 0:
+            self.movement.x = randint(-1, 4)
+        print("Starting Speed: %s" % self.movement)
+        return True
+
+    def collides(self, other):
+        if isinstance(other, Drawable):
+            if self.getRect().colliderect(other.getRect()):
+                self.bounceY()
+                return True
+            return False
+        else:
+            return None
+
+    # Changes the moving direction of the ball
+    def bounceX(self): self.movement.x = -self.movement.x
+    def bounceY(self): self.movement.y = -self.movement.y
+
+    # Checks if the ball collides with something
+    def constrain(self, boundery):
+        # Top
+        if self.pos.y < 0:
+            self.bounceY()
+            self.pos = Vec2D(self.pos.x, 0)
+            return Ball.BOUNCE
+        # Right
+        elif (self.pos + self.size).x >= boundery.x:
+            self.bounceX()
+            self.pos = Vec2D(boundery.x - (self.size.x + 1), self.pos.y)
+            return Ball.BOUNCE
+        # Left
+        elif self.pos.x < 0:
+            self.bounceX()
+            self.pos = Vec2D(0, self.pos.y)
+            return Ball.BOUNCE
+        #Down
+        elif (self.pos + self.size).y > boundery.y:
+            return Ball.FAIL
+        return Ball.NONE
 
     # Draws the ball on the screen
     def draw(self, screen):

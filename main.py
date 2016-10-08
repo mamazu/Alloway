@@ -2,46 +2,48 @@
 import pygame
 
 from Scenes import SceneManager
-from tools.Sound import Sound
 from tools.VecMath import Vec2D
 
 
 class Game(SceneManager):
 
     def __init__(self, name, size=None):
-        from mechanics.Ball import Ball, MovementMode
-        from mechanics.Level import Level
-        from mechanics.Player import Player
-        from tools.Score import Score
         SceneManager.__init__(self, size)
         pygame.display.set_caption(name)
-
-        # Creating objects
-        # Ball
-        self.ball = Ball(size=40)
-        self.mode = MovementMode()
-        self.mode.pos = (self.size - self.mode.size) * Vec2D(.5, 1) - Vec2D(0, 5)
-
-        self.player = Player()
-        self.effects = []
-        self.level = Level()
-        # Setting up the score
-        self.points = Score(0)
-        self.points.pos = Vec2D(self.size.x - self.points.size.x) + Vec2D(-10, 10)
-        #Setting up the sound
-        self.sound = Sound()
-        self.sound.pos = self.size - self.sound.size - Vec2D(20, 5)
-        print("LOADING COMPLETE")
-        #Setting up the game loop and the first level
+        self.createObjects()
         self.running = True
         self.setup()
         self.keymap()
 
-    def setup(self):
-        from mechanics.Effect import Effect
 
+    def createObjects(self):
+        from mechanics.Ball import Ball, MovementMode
+        from mechanics.Level import Level
+        from mechanics.Player import Player
+        from tools.Sound import Sound
+        from tools.Score import Score
+
+        self.ball = Ball(size=40)
+        self.mode = MovementMode()
+        self.player = Player()
+        self.effects = []
+        self.level = Level()
+        self.points = Score(0)
+        self.sound = Sound()
+
+        print("LOADING COMPLETE")
+        #Setting GUI position
+        self.mode.pos = (self.size - self.mode.size) * Vec2D(.5, 1) - Vec2D(0, 5)
+        self.points.pos = Vec2D(self.size.x - self.points.size.x) + Vec2D(-10, 10)
+        self.sound.pos = self.size - self.sound.size - Vec2D(20, 5)
+        self.level.text.pos = Vec2D(20, self.size.y - self.level.text.size.y - 5)
+
+    def setup(self):
+        # Setting the effects
+        # from mechanics.Effect import Effect
         # self.effects.append(Effect("PlayerBooster", 5))
         # self.effects.append(Effect("BallSlower", 5))
+
         # Sets the level to 1
         self.level.switchLevel(1)
         # Centers the player
@@ -72,9 +74,15 @@ class Game(SceneManager):
                 self.eventLoop(event)
 
             # Applying movement
-            if self.ball.move():
+            self.ball.move()
+            ballMovement = self.ball.constrain(self.size)
+            if ballMovement == self.ball.FAIL:
                 self.gameOver()
-            self.player.move()
+            elif ballMovement == self.ball.BOUNCE:
+                self.sound.play("wall")
+            self.player.move(self.size.x)
+            if self.ball.collides(self.player):
+                self.sound.play("player")
 
             # Applying effects
             for i, effect in enumerate(self.effects):
@@ -90,15 +98,15 @@ class Game(SceneManager):
             self.running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_RIGHT:
-                self.player.movement = 1
+                self.player.movement.x = 1
             elif event.key == pygame.K_LEFT:
-                self.player.movement = -1
+                self.player.movement.x = -1
             try:
                 self.keymap[event.key]()
             except KeyError:
                 pass
         elif event.type == pygame.KEYUP:
-            self.player.movement = 0
+            self.player.movement = Vec2D(0, 0)
         elif (event.type == pygame.MOUSEBUTTONDOWN) and (event.button == 1):
             self.click(pygame.mouse.get_pos())
 
@@ -116,9 +124,12 @@ class Game(SceneManager):
         self.running = False
 
     def gameOver(self):
-        self.sound.playSound("gameOver")
-        if self.gameOverScreen() == SceneManager.RESTART:
+        self.sound.play("gameOver")
+        gameOver = self.gameOverScreen()
+        if gameOver == SceneManager.RESTART:
             self.setup()
+        elif gameOver == SceneManager.QUIT:
+            self.stop()
 
 # todo: add debug class
 

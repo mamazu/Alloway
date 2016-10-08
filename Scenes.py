@@ -35,40 +35,55 @@ class SceneManager:
     def gameOverScreen(self):
         playerName = ''
         blocked = True
+        toRender = []
         # Creating text panes
         gameOverText = TextPane("Game Over", 60)
         gameOverText.pos = (self.size - gameOverText.size) / 2
-        gameOverText.draw(self.screen)
+        toRender.append(gameOverText)
         # The text below
-        restartText = TextPane("Q to quit or C to play again or H for highscore", 45)
-        restartText.pos = (self.size - restartText.size) / 2 + Vec2D(0, 10)
-        restartText.draw(self.screen)
+        restartText = TextPane("Q to quit or C to play again", 45)
+        restartText2 = TextPane("H for highscore", 45)
+        restartText.pos = (self.size - restartText.size) / 2 + Vec2D(0, 50)
+        restartText2.pos = (self.size - restartText2.size) / 2 + Vec2D(0, 100)
+        toRender.append(restartText)
+        toRender.append(restartText2)
         # Playername
-        playerNameText = TextPane(playerName, 100)
-        
+        playerNameText = TextPane(playerName, 90)
+        playerNameText.pos.y = (self.size - playerNameText.size).y
+        toRender.append(playerNameText)
         # Updating the screen and doing the event loop
         while True:
             for gameOverEvent in pygame.event.get():
                 if gameOverEvent.type == pygame.QUIT:
                     return SceneManager.QUIT
-                elif gameOverEvent.type == pygame.KEYDOWN:
-                    if gameOverEvent.key == pygame.K_q and not blocked:
-                        return SceneManager.QUIT
-                    elif gameOverEvent.key == pygame.K_c and not blocked:
-                        return SceneManager.RESTART
-                    elif 97 <= gameOverEvent.key <= 122 and len(playerName) < 51:
-                        playerName += chr(gameOverEvent.key)
-                    elif gameOverEvent.key == pygame.K_BACKSPACE:
-                        playerName = playerName[:-1]
-                    elif gameOverEvent.key == pygame.K_RETURN:
+                if gameOverEvent.type == pygame.KEYDOWN:
+                    key = gameOverEvent.key
+                    if key == pygame.K_ESCAPE:                return SceneManager.QUIT
+                    if key == pygame.K_q and not blocked:     return SceneManager.QUIT
+                    elif key == pygame.K_c and not blocked:   return SceneManager.RESTART
+                    elif 97 <= key <= 122:                    playerName += chr(key)
+                    elif key == pygame.K_SPACE:               playerName += ' '
+                    elif key == pygame.K_BACKSPACE:           playerName = playerName[:-1]
+                    elif key == pygame.K_RETURN and blocked:
                         blocked = False
                         print(playerName)
                         Highscore.saveToFile(playerName, player.points.score, level.levelid)
-            fillPane = Pane(Vec2D(0, restartText.pos.y+restartText.size.y), Vec2D(self.size))
-            self.screen.fill(SceneManager.BACKGROUND_COLOR, fillPane)
-            # Playername
-            if blocked:
-                playerNameText.pos = self.size - playerNameText.size
-                playerNameText.draw(self.screen)
-                pygame.display.update()
-            self.clock.tick(100)
+            #Drawing objects
+            self.screen.fill(SceneManager.BACKGROUND_COLOR)
+            playerNameText.setText("Enter your name" if playerName == '' else playerName)
+            for obj in toRender: obj.draw(self.screen)
+            pygame.display.update()
+
+    def menuScreen(self):
+        self.screen.fill(SceneManager.BACKGROUND_COLOR)
+        buttons = [Button("Start", 30), Button("Highscore", 30)]
+        #Drawing
+        for button in buttons:
+            button.size = Vec2D(200, 50)
+            button.draw()
+        while(True):
+            for menuEvent in pygame.event.get():
+                if menuEvent != pygame.MOUSEBUTTONDOWN or event.button != 1:
+                    continue
+                for button in buttons:
+                    button.click(pygame.mouse.get_pos())
