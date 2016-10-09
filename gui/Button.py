@@ -1,4 +1,4 @@
-from tools.utils import TextPane
+from gui.Text import TextPane
 from tools.VecMath import Vec2D
 
 class Button(TextPane):

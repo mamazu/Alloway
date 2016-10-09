@@ -17,14 +17,13 @@ class Game(SceneManager):
 
 
     def createObjects(self):
-        from mechanics.Ball import Ball, MovementMode
+        from mechanics.Ball import Ball
         from mechanics.Level import Level
         from mechanics.Player import Player
         from tools.Sound import Sound
         from tools.Score import Score
 
         self.ball = Ball(size=40)
-        self.mode = MovementMode()
         self.player = Player()
         self.effects = []
         self.level = Level()
@@ -33,7 +32,6 @@ class Game(SceneManager):
 
         print("LOADING COMPLETE")
         #Setting GUI position
-        self.mode.pos = (self.size - self.mode.size) * Vec2D(.5, 1) - Vec2D(0, 5)
         self.points.pos = Vec2D(self.size.x - self.points.size.x) + Vec2D(-10, 10)
         self.sound.pos = self.size - self.sound.size - Vec2D(20, 5)
         self.level.text.pos = Vec2D(20, self.size.y - self.level.text.size.y - 5)
@@ -63,7 +61,6 @@ class Game(SceneManager):
             pygame.K_UP:        self.ball.moveRand,
             pygame.K_SPACE:     self.ball.moveRand,
             pygame.K_s:         self.sound.toggleSound,
-            pygame.K_m:         self.mode.toggle,
             pygame.K_q:         self.gameOver,
         }
 
@@ -73,16 +70,19 @@ class Game(SceneManager):
             for event in pygame.event.get():
                 self.eventLoop(event)
 
-            # Applying movement
+            self.player.move(self.size.x)
+            # Applying movement to th ball
             self.ball.move()
             ballMovement = self.ball.constrain(self.size)
             if ballMovement == self.ball.FAIL:
                 self.gameOver()
             elif ballMovement == self.ball.BOUNCE:
                 self.sound.play("wall")
-            self.player.move(self.size.x)
             if self.ball.collides(self.player):
                 self.sound.play("player")
+            # Checking for level collisions
+            if self.level.collides(self.ball):
+                self.ball.bounceY()
 
             # Applying effects
             for i, effect in enumerate(self.effects):
@@ -115,7 +115,7 @@ class Game(SceneManager):
 
     def draw(self):
         self.screen.fill(SceneManager.BACKGROUND_COLOR)
-        drawing = [self.ball, self.player, self.points, self.sound, self.level, self.mode]
+        drawing = [self.ball, self.player, self.points, self.sound, self.level]
         for drawCall in drawing:
             drawCall.draw(self.screen)
         pygame.display.update()

@@ -18,7 +18,7 @@ class Highscore:
 
 
 # PointsClass
-from tools.utils import TextPane
+from gui.Text import TextPane
 
 class Score(TextPane):
     DEFAULTSCORE = 0

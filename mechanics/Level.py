@@ -14,13 +14,13 @@ class Block(Drawable):
     BLOCKSIZE = (50, 25)
 
     # Constructor
-    def __init__(self, position, size=1):
+    def __init__(self, position, size):
         import random, pygame
-        from tools.utils import Vec2D
+        from tools.VecMath import Vec2D
         self.imageOverLay = None
         #self.effekt = ClassOfEffect("none")
         self.pos = Vec2D(0, 0, position)
-        self.size = Vec2D(size * Block.BLOCKSIZE[0], Block.BLOCKSIZE[1])
+        self.size = Vec2D(0, 0, size)
         if len(TEXTUES) != 0:
             image = pygame.image.load(random.choice(TEXTUES))
             image = pygame.transform.scale(image, self.expansions)
@@ -41,7 +41,7 @@ class Block(Drawable):
     def collides(self, ball):
         if isinstance(ball, Drawable):
             ballRect = ball.getRect()
-            return self.getRect().collide(ballRect)
+            return self.getRect().colliderect(ballRect)
         return None
 
     # Returns the name of the effect
@@ -62,7 +62,7 @@ class Block(Drawable):
 class Level(Drawable):
     # Constructor
     def __init__(self):
-        from tools.utils import TextPane
+        from gui.Text import TextPane
         self.levelid = 1
         self.time = 30
         self.blocks = []
@@ -83,41 +83,44 @@ class Level(Drawable):
         for block in self.blocks:
             block.draw(screen)
 
+    def load(self, levelname):
+        import os, re
+        filename = 'res/level/'+levelname
+        if not os.path.isfile(filename):
+            return []
+        levelcontent = open(filename).read()
+        blocks = []
+        for line in levelcontent.split('\n'):
+            if len(line) == 0: continue
+            match = re.findall(r'(\d+)\s*[,;]\s*(\d+)\s*[,;]\s*(\d+)\s*[,;]\s*(\d+)\s*', line)
+            blockdata = [int(blockProperty) for blockProperty in match[0]]
+            block = Block(blockdata[:2], blockdata[2:])
+            blocks.append(block)
+        return blocks
+
     # Sets the Block pattern for the level
     def setPattern(self):
         if self.levelid == 1:
-            pattern = (
-                ((10, 10), 1), ((10 + Block.BLOCKSIZE[0], 10), 1), ((10 + Block.BLOCKSIZE[0] * 2, 10), 2),
-                ((10, 10 + Block.BLOCKSIZE[1]), 2), ((10 + Block.BLOCKSIZE[0] * 2, 10 + Block.BLOCKSIZE[1]), 2),
-                ((10, 10 + Block.BLOCKSIZE[1] * 2), 3), ((10 + Block.BLOCKSIZE[0] * 3, 10 + Block.BLOCKSIZE[1] * 2), 1),
-                ((10, 10 + Block.BLOCKSIZE[1] * 3), 4),
-                ((10 + int(Block.BLOCKSIZE[0] * 3.5), 10 + int(Block.BLOCKSIZE[1] * 4)), 2)
-            )
+            self.blocks = self.load('level1hardcoded.lvl')
             self.time = 30
             # Player.setSpeed(1.5)
         elif self.levelid == 2:
-            pattern = (
-                ((10, 20), 1),
-                ((10, 40), 1)
-            )
+            self.blocks = self.load('level2hardcoded.lvl')
             self.time = 30
             # Setting new player size
             # Player.setSize(0.8)
             # Ball.setSpeed(1.325)
         else:
-            pattern = ()
             self.time = 100
             # Player.setSpeed(0.1)
-        for everyBlock in pattern:
-            self.blocks.append(Block(everyBlock[0], everyBlock[1]))
 
-    def collide(self, ball):
+    def collides(self, obj):
+        if not isinstance(obj, Drawable):
+            return None
         hasCollided = []
         for block in self.blocks:
-            hasCollided.append(block.collides(ball))
-        print(hasCollided)
+            hasCollided.append(block.collides(obj))
         self.blocks = [block for i, block in enumerate(self.blocks) if not hasCollided[i]]
-        ball.bounce()
         return any(hasCollided)
 
     # Returns the ticktime of the level

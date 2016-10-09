@@ -1,32 +1,6 @@
 from tools.VecMath import Vec2D
-from tools.utils import Drawable, TextPane
-
-
-class MovementMode(TextPane):
-    # Property
-    DEFAULTMODE = 0
-    MODES = ["Bowling", "Bouncing", "Ghost"]
-
-    # Constructor
-    def __init__(self, mode=None):
-        if mode is None or not isinstance(mode, int):
-            self.mode = 0
-        else:
-            self.mode = mode % len(self.mode)
-        TextPane.__init__(self, self, 18)
-        print("Mode: %i" % self.mode)
-
-    # Toggles the mode
-    def toggle(self):
-        self.mode = (self.mode + 1) % len(MovementMode.MODES)
-        self.setText(self)
-
-    def __int__(self):
-        return self.mode
-
-    def __str__(self):
-        return MovementMode.MODES[self.mode]
-
+from tools.utils import Drawable
+from gui.Text import TextPane
 
 # BallClass
 class Ball(Drawable):
@@ -55,7 +29,9 @@ class Ball(Drawable):
 
     # Get the relative position of an object
     def relPos(self, obj):
-        return self.pos - obj.pos
+        if not isinstance(obj, Drawable):
+            return self.pos - obj.pos + (obj.size / 2)
+        return None
 
     # Moves the ball acording to his movement
     def move(self):

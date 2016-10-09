@@ -1,7 +1,7 @@
 import pygame
 
 from tools.Score import Highscore
-from tools.utils import TextPane
+from gui.Text import TextPane
 from tools.VecMath import Pane, Vec2D
 
 
