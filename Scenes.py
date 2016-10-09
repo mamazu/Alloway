@@ -6,7 +6,7 @@ from tools.VecMath import Pane, Vec2D
 
 
 class SceneManager:
-    BACKGROUND_COLOR = (66, 180, 255)
+    BACKGROUND_COLOR = (50, 153, 50)
     QUIT = 0
     CONTINUE = 1
     RESTART = 2

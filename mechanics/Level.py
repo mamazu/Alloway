@@ -3,11 +3,10 @@ import os
 
 TEXTUES = []
 FILETYPESFORTEXTURES = ["jpg", "png", "gif", "bmp", "pcx", "tga", "tif", "lbm", "pbm", "pgm", "ppm", "xpm"]
-for root, dirs, files in os.walk("Images"):
+for root, dirs, files in os.walk("res/Images"):
     for file in files:
-        if file[-3:].lower() in FILETYPESFORTEXTURES:
-            TEXTUES.append(os.path.join("Images", file))
-
+        TEXTUES.append(os.path.join("res/Images", file))
+print(TEXTUES)
 
 # BlockClass
 class Block(Drawable):
@@ -23,7 +22,7 @@ class Block(Drawable):
         self.size = Vec2D(0, 0, size)
         if len(TEXTUES) != 0:
             image = pygame.image.load(random.choice(TEXTUES))
-            image = pygame.transform.scale(image, self.expansions)
+            #image = pygame.transform.scale(image, self.size.getTuple())
             self.imageOverLay = image
         else:
             self.imageOverLay = None
@@ -32,7 +31,7 @@ class Block(Drawable):
     def draw(self, screen):
         from pygame.draw import rect
         if self.imageOverLay is not None:
-            screen.blit(self.imageOverLay, self.pos.getTuple())
+            screen.blit(self.imageOverLay, self.pos.getTuple(), (0, 0, self.size.x, self.size.y))
         else:
             rect(screen, (255, 0, 0), self.getRect())
         rect(screen, (0, 0, 0), self.getRect(), 2)
@@ -62,6 +61,7 @@ class Block(Drawable):
 class Level(Drawable):
     # Constructor
     def __init__(self):
+        Drawable.__init__(self)
         from gui.Text import TextPane
         self.levelid = 1
         self.time = 30
@@ -113,6 +113,13 @@ class Level(Drawable):
         else:
             self.time = 100
             # Player.setSpeed(0.1)
+
+    def setOffset(self, offset=None):
+        from tools.VecMath import Vec2D
+        if not Vec2D.isVec(offset) or offset is None:
+            return
+        for block in self.blocks:
+            block.pos += offset
 
     def collides(self, obj):
         if not isinstance(obj, Drawable):

@@ -33,11 +33,15 @@ class Score(TextPane):
 
     # Adding points to the score
     def __add__(self, addVal):
-        return Score(self.score + addVal)
+        score = Score(self.score + addVal)
+        score.pos = self.pos + self.size - score.size
+        return score
 
     # Subtract points
     def __sub__(self, subVal):
-        return Score(self.score - subVal)
+        score = Score(self.score - addVal)
+        score.pos = self.pos + self.size - score.size
+        return score
 
     # Resetting the score to 0
     def reset(self):

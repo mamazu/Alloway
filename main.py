@@ -27,14 +27,18 @@ class Game(SceneManager):
         self.player = Player()
         self.effects = []
         self.level = Level()
-        self.points = Score(0)
+        self.level.text.fs = 50
+        self.level.text.update()
+        self.score = Score(0)
+        self.score.fs = 50
+        self.score.update()
         self.sound = Sound()
 
         print("LOADING COMPLETE")
         #Setting GUI position
-        self.points.pos = Vec2D(self.size.x - self.points.size.x) + Vec2D(-10, 10)
+        self.score.pos = Vec2D(self.size.x - self.score.size.x) + Vec2D(-10, 10)
         self.sound.pos = self.size - self.sound.size - Vec2D(20, 5)
-        self.level.text.pos = Vec2D(20, self.size.y - self.level.text.size.y - 5)
+        self.level.text.pos = Vec2D(10, 10)
 
     def setup(self):
         # Setting the effects
@@ -51,8 +55,12 @@ class Game(SceneManager):
         # Relocates the ball to the middle of the player
         self.ball.movement = Vec2D(0, 0)
         self.ball.pos = self.player.pos + self.player.size * Vec2D(.5,0) - self.ball.size * Vec2D(.5, 1)
+        # Moving level Down
+        self.level.setOffset(Vec2D(0, self.score.pos.y + self.score.size.y *.75))
+
         # Reset score
-        self.points.reset()
+        self.score.reset()
+        self.level.pos = Vec2D(0, self.score.pos.y + self.score.size.y)
 
     def keymap(self):
         self.keymap = {
@@ -83,6 +91,7 @@ class Game(SceneManager):
             # Checking for level collisions
             if self.level.collides(self.ball):
                 self.ball.bounceY()
+                self.score = self.score + 50
 
             # Applying effects
             for i, effect in enumerate(self.effects):
@@ -115,7 +124,7 @@ class Game(SceneManager):
 
     def draw(self):
         self.screen.fill(SceneManager.BACKGROUND_COLOR)
-        drawing = [self.ball, self.player, self.points, self.sound, self.level]
+        drawing = [self.ball, self.player, self.score, self.sound, self.level]
         for drawCall in drawing:
             drawCall.draw(self.screen)
         pygame.display.update()
