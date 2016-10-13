@@ -24,6 +24,9 @@ class TextPane(Drawable):
         else:
             self.bg = None
 
+    def center(self):
+        pass
+
     def update(self):
         from pygame.font import Font
         self.textRect = Font(None, self.fs).render(self.text, 1, self.fc)

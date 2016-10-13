@@ -1,5 +1,5 @@
 class Debug:
-    DEBUGGING = False
+    DEBUGGING = True
 
     @staticmethod
     def printMessage(text):

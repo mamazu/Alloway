@@ -10,10 +10,21 @@ class Game(SceneManager):
     def __init__(self, name, size=None):
         SceneManager.__init__(self, size)
         pygame.display.set_caption(name)
+        self.menuScreen()
+        self.init()
+        self.setup()
+
+    def init(self):
         self.createObjects()
         self.running = True
-        self.setup()
-        self.keymap()
+        self.keymap = {
+            pygame.K_ESCAPE:    self.stop,
+            pygame.K_p:         self.pauseScreen,
+            pygame.K_UP:        self.ball.moveRand,
+            pygame.K_SPACE:     self.ball.moveRand,
+            pygame.K_s:         self.sound.toggleSound,
+            pygame.K_q:         self.gameOver,
+        }
 
     def createObjects(self):
         from mechanics.Ball import Ball
@@ -68,16 +79,6 @@ class Game(SceneManager):
         # Reset score
         self.score.reset()
         self.level.pos = Vec2D(0, self.score.pos.y + self.score.size.y)
-
-    def keymap(self):
-        self.keymap = {
-            pygame.K_ESCAPE:    self.stop,
-            pygame.K_p:         self.pauseScreen,
-            pygame.K_UP:        self.ball.moveRand,
-            pygame.K_SPACE:     self.ball.moveRand,
-            pygame.K_s:         self.sound.toggleSound,
-            pygame.K_q:         self.gameOver,
-        }
 
     def start(self):
         # Gameloop

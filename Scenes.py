@@ -4,7 +4,6 @@ from tools.Score import Highscore
 from gui.Text import TextPane
 from tools.VecMath import Pane, Vec2D
 
-
 class SceneManager:
     BACKGROUND_COLOR = (50, 153, 50)
     QUIT = 0
@@ -68,7 +67,7 @@ class SceneManager:
                     elif key == pygame.K_RETURN and blocked:
                         blocked = False
                         Debug.printMessage(playerName)
-                        Highscore.saveToFile(playerName, player.points.score, level.levelid)
+                        Highscore.saveToFile(playerName, self.score.score, self.level.levelid)
             #Drawing objects
             self.screen.fill(SceneManager.BACKGROUND_COLOR)
             playerNameText.setText("Enter your name" if playerName == '' else playerName)
@@ -76,15 +75,28 @@ class SceneManager:
             pygame.display.update()
 
     def menuScreen(self):
+        from gui.Button import Button
         self.screen.fill(SceneManager.BACKGROUND_COLOR)
         buttons = [Button("Start", 30), Button("Highscore", 30)]
         #Drawing
         for button in buttons:
             button.size = Vec2D(200, 50)
-            button.draw()
+            button.center()
+            button.bg = (255, 0, 0)
+            button.draw(self.screen)
+        pygame.display.update()
         while(True):
             for menuEvent in pygame.event.get():
+                if menuEvent.type == pygame.QUIT: self.close()
+                if menuEvent.type == pygame.KEYDOWN:
+                    key = menuEvent.key
+                    if key == pygame.K_ESCAPE: self.close()
+
                 if menuEvent != pygame.MOUSEBUTTONDOWN or event.button != 1:
                     continue
                 for button in buttons:
                     button.click(pygame.mouse.get_pos())
+
+    def close(self):
+        pygame.quit()
+        quit()
