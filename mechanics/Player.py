@@ -8,6 +8,7 @@ class Player(Drawable):
 
     # Constructor
     def __init__(self, size=None):
+        from tools.Debug import Debug
         if Vec2D.isVec(size):
             Drawable.__init__(self,None, size)
         else:
@@ -16,7 +17,7 @@ class Player(Drawable):
         self.speed = 5
         self.sizeScale = 1
         self.movement = Vec2D(0, 0)
-        print("Player created")
+        Debug.printMessage("Player created")
 
     # Resizing the player
     def setSize(self, scale):

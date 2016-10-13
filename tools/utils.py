@@ -20,4 +20,4 @@ class Drawable(Pane):
 
     @abstractmethod
     def draw(self, surf):
-        pass
+        raise NotImplementedError('You have not implemented draw yet')

@@ -4,10 +4,9 @@ import timeit
 from Scenes import SceneManager
 from tools.VecMath import Vec2D
 from timeit import default_timer
+from tools.Debug import Debug
 
 class Game(SceneManager):
-    DEBUGGING = True
-
     def __init__(self, name, size=None):
         SceneManager.__init__(self, size)
         pygame.display.set_caption(name)
@@ -36,7 +35,7 @@ class Game(SceneManager):
         self.sound = Sound()
         self.time = default_timer()
 
-        print("LOADING COMPLETE")
+        Debug.printMessage("LOADING COMPLETE")
         #Setting GUI position
         self.score.pos = Vec2D(self.size.x - self.score.size.x) + Vec2D(-10, 10)
         self.sound.pos = self.size - self.sound.size - Vec2D(20, 10)
@@ -44,7 +43,7 @@ class Game(SceneManager):
         self.sound.update()
         self.level.text.pos = Vec2D(10, 10)
         #Debug features
-        if Game.DEBUGGING:
+        if Debug.DEBUGGING:
             self.fpsCounter = TextPane('0 fps', 15)
             self.fpsCounter.pos = Vec2D(20, self.size.y - 10 - self.fpsCounter.size.y)
 
@@ -100,6 +99,9 @@ class Game(SceneManager):
             if self.level.collides(self.ball):
                 self.ball.bounceY()
                 self.score = self.score + 50
+                if self.level.levelCheck() == 0:
+                    #TODO: add wining screen
+                    print("You win")
 
             # Applying effects
             for i, effect in enumerate(self.effects):
@@ -134,14 +136,14 @@ class Game(SceneManager):
         self.fps()
         self.screen.fill(SceneManager.BACKGROUND_COLOR)
         drawing = [self.ball, self.player, self.score, self.sound, self.level]
-        if Game.DEBUGGING:
+        if Debug.DEBUGGING:
             drawing.append(self.fpsCounter)
         for drawCall in drawing:
             drawCall.draw(self.screen)
         pygame.display.update()
 
     def fps(self):
-        if not Game.DEBUGGING:
+        if not Debug.DEBUGGING:
             return
         time = default_timer()
         deltaTime = time - self.time
@@ -159,11 +161,8 @@ class Game(SceneManager):
         elif gameOver == SceneManager.QUIT:
             self.stop()
 
-# todo: add debug class
-
 g = Game('Alloway')
 g.start()
-
 
 pygame.quit()
 quit()

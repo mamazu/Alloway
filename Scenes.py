@@ -33,6 +33,7 @@ class SceneManager:
 
     # Gameover Screen
     def gameOverScreen(self):
+        from tools.Debug import Debug
         playerName = ''
         blocked = True
         toRender = []
@@ -66,7 +67,7 @@ class SceneManager:
                     elif key == pygame.K_BACKSPACE:           playerName = playerName[:-1]
                     elif key == pygame.K_RETURN and blocked:
                         blocked = False
-                        print(playerName)
+                        Debug.printMessage(playerName)
                         Highscore.saveToFile(playerName, player.points.score, level.levelid)
             #Drawing objects
             self.screen.fill(SceneManager.BACKGROUND_COLOR)

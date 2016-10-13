@@ -1,4 +1,5 @@
 from tools.utils import Drawable
+from tools.Debug import Debug
 import os
 
 TEXTUES = []
@@ -6,7 +7,7 @@ FILETYPESFORTEXTURES = ["jpg", "png", "gif", "bmp", "pcx", "tga", "tif", "lbm", 
 for root, dirs, files in os.walk("res/Images"):
     for file in files:
         TEXTUES.append(os.path.join("res/Images", file))
-print(TEXTUES)
+#print(TEXTUES)
 
 # BlockClass
 class Block(Drawable):
@@ -68,14 +69,14 @@ class Level(Drawable):
         self.blocks = []
         self.text = TextPane("", 19)
         self.switchLevel(1)
-        print("Level created")
+        Debug.printMessage("Level created")
 
     # Changes the level to a certain id
     def switchLevel(self, newLevel):
         self.levelid = newLevel
         self.setPattern()
         self.text.setText("Level: " + str(self.levelid))
-        print("Level %s" % self.levelid)
+        Debug.printMessage("Level %s" % self.levelid)
 
     # Draws the level id on the screen
     def draw(self, screen):
@@ -113,6 +114,11 @@ class Level(Drawable):
         else:
             self.time = 100
             # Player.setSpeed(0.1)
+
+    def levelCheck(self):
+        if len(self.blocks) == 0:
+            self.switchLevel(self.levelid + 1)
+        return len(self.blocks)
 
     def setOffset(self, offset=None):
         from tools.VecMath import Vec2D

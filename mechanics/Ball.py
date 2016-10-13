@@ -1,6 +1,7 @@
 from tools.VecMath import Vec2D
 from tools.utils import Drawable
 from gui.Text import TextPane
+from tools.Debug import Debug
 
 # BallClass
 class Ball(Drawable):
@@ -17,7 +18,7 @@ class Ball(Drawable):
             Drawable.__init__(self, pos=Vec2D(0, 0), size=Vec2D(Ball.DEFAULTSIZE, Ball.DEFAULTSIZE))
         self.movement = Vec2D(0, 0)
         self.speed = 1
-        print("Ball created")
+        Debug.printMessage("Ball created")
 
     # Sets the new position of the Ball
     def setPosition(self, position):
@@ -45,7 +46,7 @@ class Ball(Drawable):
         self.movement = Vec2D(randint(-1, 4), -4)
         while self.movement.x == 0:
             self.movement.x = randint(-1, 4)
-        print("Starting Speed: %s" % self.movement)
+        Debug.printMessage("Starting Speed: %s" % self.movement)
         return True
 
     def collides(self, other):

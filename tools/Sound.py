@@ -1,6 +1,6 @@
 from gui.Button import Button
 from pygame import mixer as mix
-import threading
+from tools.Debug import Debug
 
 class Sound(Button):
     DEFAULTSOUNDS = {
@@ -19,13 +19,13 @@ class Sound(Button):
         self.load(Sound.DEFAULTSOUNDS)
         self.fc = (255, 0, 0) if on else (0, 0, 0)
         #Printing debug
-        print("Sound created and %i sounds loaded" % len(self.sounds))
+        Debug.printMessage("Sound created and %i sounds loaded" % len(self.sounds))
 
     def load(self, moreSounds={}):
         from os.path import isfile
         for key, fileName in moreSounds.items():
             if not isfile(fileName):
-                print("Could not load file %s" % fileName)
+                Debug.printMessage("Could not load file %s" % fileName)
                 continue
             self.sounds[key] = mix.Sound(fileName)
 
@@ -44,4 +44,4 @@ class Sound(Button):
         try:
             self.sounds[what].play()
         except KeyError:
-            print("Could not find sound")
+            Debug.printMessage("Could not find sound")
