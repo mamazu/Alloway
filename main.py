@@ -1,11 +1,12 @@
 # Import and start Pygame
 import pygame
-
+import timeit
 from Scenes import SceneManager
 from tools.VecMath import Vec2D
-
+from timeit import default_timer
 
 class Game(SceneManager):
+    DEBUGGING = True
 
     def __init__(self, name, size=None):
         SceneManager.__init__(self, size)
@@ -15,13 +16,13 @@ class Game(SceneManager):
         self.setup()
         self.keymap()
 
-
     def createObjects(self):
         from mechanics.Ball import Ball
         from mechanics.Level import Level
         from mechanics.Player import Player
         from tools.Sound import Sound
         from tools.Score import Score
+        from gui.Text import TextPane
 
         self.ball = Ball(size=40)
         self.player = Player()
@@ -33,12 +34,19 @@ class Game(SceneManager):
         self.score.fs = 50
         self.score.update()
         self.sound = Sound()
+        self.time = default_timer()
 
         print("LOADING COMPLETE")
         #Setting GUI position
         self.score.pos = Vec2D(self.size.x - self.score.size.x) + Vec2D(-10, 10)
-        self.sound.pos = self.size - self.sound.size - Vec2D(20, 5)
+        self.sound.pos = self.size - self.sound.size - Vec2D(20, 10)
+        self.sound.fs = 15
+        self.sound.update()
         self.level.text.pos = Vec2D(10, 10)
+        #Debug features
+        if Game.DEBUGGING:
+            self.fpsCounter = TextPane('0 fps', 15)
+            self.fpsCounter.pos = Vec2D(20, self.size.y - 10 - self.fpsCounter.size.y)
 
     def setup(self):
         # Setting the effects
@@ -123,11 +131,22 @@ class Game(SceneManager):
         self.sound.click(mousepos)
 
     def draw(self):
+        self.fps()
         self.screen.fill(SceneManager.BACKGROUND_COLOR)
         drawing = [self.ball, self.player, self.score, self.sound, self.level]
+        if Game.DEBUGGING:
+            drawing.append(self.fpsCounter)
         for drawCall in drawing:
             drawCall.draw(self.screen)
         pygame.display.update()
+
+    def fps(self):
+        if not Game.DEBUGGING:
+            return
+        time = default_timer()
+        deltaTime = time - self.time
+        self.fpsCounter.setText('%i fps' % (1 / deltaTime))
+        self.time = time
 
     def stop(self):
         self.running = False
